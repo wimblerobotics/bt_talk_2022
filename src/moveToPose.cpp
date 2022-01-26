@@ -24,10 +24,10 @@ MoveToPose::MoveToPose(const std::string& name,
       node_->get_node_base_interface(), node_->get_node_graph_interface(),
       node_->get_node_logging_interface(),
       node_->get_node_waitables_interface(),
-      /*  node_,*/ "navigate_to_pose");
+      /*  node_,*/ "/navigate_to_pose");
   if (!client_ptr_->wait_for_action_server(std::chrono::seconds(5))) {
     RCLCPP_ERROR(node_->get_logger(),
-                 "Action server not available after waiting");
+                 "[MoveToPose] Action server not available after waiting");
     rclcpp::shutdown();
   }
 }

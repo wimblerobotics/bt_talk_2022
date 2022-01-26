@@ -22,14 +22,11 @@ find_package(tf2_ros REQUIRED)
 
 add_executable(BT_Talk_2021 
   src/BT_Talk_2021.cpp
-  src/calculateNearestWallGoal.h
+  src/calculateNearestWallGoal.cpp
   src/canSeeACloseWall.cpp
   src/closePointSubscriber.cpp
   src/isNearAWall.cpp
-  src/moveAShortDistanceAhead.cpp
   src/moveToPose.cpp
-  src/notAboutToCollide.cpp
-  src/turnInRelativeDirection.cpp
   )
 target_include_directories(BT_Talk_2021 PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

@@ -10,73 +10,9 @@
                     <CalculateNearestWallGoal goal="{x}" />
                     <SaySomething name="goal"   message="{x}" />
                     <MoveToPose goal="{x}" />
-                    <!-- <SaySomething name="first"   message="something here" /> -->
-                    <!-- <Switch4 case_1="left" case_2="front" case_3="right" case_4="back" variable="closestWall()">
-                        <SubTree ID="FindWallAhead" __shared_blackboard="false" byFirstTurningToThe="left" upToDistance="3" />
-                        <SubTree ID="FindWallAhead" __shared_blackboard="false" byFirstTurningToThe="front" upToDistance="3" />
-                        <SubTree ID="FindWallAhead" __shared_blackboard="false" byFirstTurningToThe="right" upToDistance="3" />
-                        <SubTree ID="FindWallAhead" __shared_blackboard="false" byFirstTurningToThe="back" upToDistance="3" />
-                    </Switch4> -->
                 </ReactiveSequence>
-                <!-- <Fallback name="MoveToAFarWall"> 
-                    <Sequence>
-                        <SetBlackboard output_key="direction" value="left" />
-                        <SetBlackboard output_key="distance" value="6" />
-                        <SubTree ID="FindWallAhead" name="SEG 1" byFirstTurningToThe="direction" upToDistance="distance" />
-                    </Sequence>
-                    <Sequence>
-                        <SetBlackboard output_key="direction" value="right" />
-                        <SetBlackboard output_key="distance" value="6" />
-                        <SubTree ID="FindWallAhead" name="SEG 2" byFirstTurningToThe="direction" upToDistance="distance" />
-                    </Sequence>
-                    <Sequence>
-                        <SetBlackboard output_key="direction" value="right" />
-                        <SetBlackboard output_key="distance" value="12" />
-                        <SubTree ID="FindWallAhead" name="SEG 3" byFirstTurningToThe="direction" upToDistance="distance" />
-                    </Sequence>
-                    <Sequence>
-                        <SetBlackboard output_key="direction" value="right" />
-                        <SetBlackboard output_key="distance" value="12" />
-                        <SubTree ID="FindWallAhead" name="SEG 4" byFirstTurningToThe="direction" upToDistance="distance" />
-                    </Sequence>
-                    <Sequence>
-                        <SetBlackboard output_key="direction" value="right" />
-                        <SetBlackboard output_key="distance" value="12" />
-                        <SubTree ID="FindWallAhead" name="SEG 5" byFirstTurningToThe="direction" upToDistance="distance" />
-                    </Sequence>
-                    <Sequence>
-                        <SetBlackboard output_key="direction" value="right" />
-                        <SetBlackboard output_key="distance" value="6" />
-                        <SubTree ID="FindWallAhead" name="SEG 6" byFirstTurningToThe="direction" upToDistance="distance" />
-                    </Sequence>
-                </Fallback> 
-            -->
-            </ReactiveFallback>
+             </ReactiveFallback>
         </ReactiveFallback>
-    </BehaviorTree>
-    <!-- ////////// -->
-    <BehaviorTree ID="FindWallAhead">
-        <Sequence name="TurnAndSearch">
-            <SetBlackboard output_key="distanceTraveled" value="0" />
-            <Condition ID="NotAboutToCollide" />
-            <TurnInRelativeDirection makeOppositeTurn="false" turnDirection="{byFirstTurningToThe}" name="Make the turn towards the direction to search" />
-            <ForceSuccess name="SearchAhead">
-                <ReactiveSequence name="SearchIfNotAboutToCollide">
-                    <Condition ID="NotAboutToCollide" />
-                    <WhileDoElse name="SearchAheadUpToDistance">
-                        <Inverter>
-                            <Condition ID="CanSeeACloseWall" />
-                        </Inverter>
-                        <ReactiveSequence>
-                            <Condition ID="NotYetTraveledMaximumDistance" distanceTraveled="{distanceTraveled}" maxDistance="2.0" />
-                            <Action ID="MoveAShortDistanceAhead" distanceTraveled="{distanceTraveled}" />
-                        </ReactiveSequence>
-                        <AlwaysSuccess />
-                    </WhileDoElse>
-                </ReactiveSequence>
-            </ForceSuccess>
-            <Condition ID="CanSeeACloseWall" />
-        </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
     <TreeNodesModel>
@@ -84,27 +20,10 @@
             <output_port name="goal">Goal pose to nearest wall</output_port>
         </Action>
         <Condition ID="CanSeeACloseWall" />
-        <SubTree ID="FindWallAhead">
-            <input_port default="false" name="__shared_blackboard">If false (default), the Subtree has an isolated blackboard and needs port remapping</input_port>
-            <input_port default="none" name="byFirstTurningToThe">Make this turn then find a wall ahead</input_port>
-            <input_port default="12" name="upToDistance">Search for wall ahead up to this distance then stop</input_port>
-        </SubTree>
-        <Condition ID="IsNearAWall" />
+       <Condition ID="IsNearAWall" />
         <Action ID="MoveToPose">
             <input_port name="goal">Goal Pose to move to</input_port>
         </Action>
-        <Action ID="MoveAShortDistanceAhead">
-            <inout_port name="distanceTraveled">Updated after movement</inout_port>
-        </Action>
-        <Condition ID="NotAboutToCollide" />
-        <Action ID="TurnInRelativeDirection">
-            <input_port default="false" name="makeOppositeTurn">Actually, turn in opposite direction</input_port>
-            <input_port default="front" name="turnDirection">Relative direction for the turn</input_port>
-        </Action>
-        <Condition ID="NotYetTraveledMaximumDistance">
-            <input_port default="3.0" name="maxDistance">Maximum travel distance allowed</input_port>
-            <input_port default="{distanceTraveled}" name="distanceTraveled">Distance traveled so far</input_port>
-        </Condition>
         <Action ID="SaySomething">
             <input_port default="" name="message">
                 Print a message to the log

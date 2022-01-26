@@ -1,11 +1,12 @@
-#include "canSeeACloseWall.h"
+#include "canSeeACloseWall.hpp"
 
 #include <vector>
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
-#include "closePointSubscriber.h"
+#include "closePointSubscriber.hpp"
 
+namespace BT_Talk_CanSeeACloseWall {
 BT::NodeStatus CanSeeACloseWall() {
   const vector<laser_lines::msg::ClosestPointToLineSegment>& line_segments =
       ClosePointSubscriber::singleton()->getLineSements();
@@ -20,3 +21,4 @@ BT::NodeStatus CanSeeACloseWall() {
 
   return BT::NodeStatus::RUNNING;
 }
+}  // namespace BT_Talk_CanSeeACloseWall

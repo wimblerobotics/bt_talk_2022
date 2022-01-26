@@ -1,4 +1,4 @@
-#include "closePointSubscriber.h"
+#include "closePointSubscriber.hpp"
 
 #include <cstdio>
 #include <laser_lines/msg/closest_point_to_line_segment.hpp>

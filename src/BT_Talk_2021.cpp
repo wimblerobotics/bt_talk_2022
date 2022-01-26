@@ -1,21 +1,19 @@
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+
 #include <cstdio>
 #include <rclcpp/rclcpp.hpp>
 
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "behaviortree_cpp_v3/loggers/bt_cout_logger.h"
 #include "behaviortree_cpp_v3/loggers/bt_zmq_publisher.h"
-#include "calculateNearestWallGoal.h"
-#include "canSeeACloseWall.h"
-#include "closePointSubscriber.h"
-#include "isNearAWall.h"
+#include "calculateNearestWallGoal.hpp"
+#include "canSeeACloseWall.hpp"
+#include "closePointSubscriber.hpp"
+#include "isNearAWall.hpp"
 #include "moveToPose.hpp"
-#include "notAboutToCollide.h"
-#include "notYetTraveledMaximumDistance.h"
-#include "saySomething.h"
-#include "turnInRelativeDirection.h"
+#include "saySomething.hpp"
 
-
-BT::Tree* g_tree;
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
   rclcpp::Node::SharedPtr g_node = rclcpp::Node::make_shared("floorbot_1_node");
@@ -24,28 +22,38 @@ int main(int argc, char** argv) {
   g_node->declare_parameter<std::string>("xml_path", "foo");
   g_node->get_parameter("xml_path", xml_path);
   BT::BehaviorTreeFactory factory;
-  auto tree = factory.createTreeFromFile(xml_path);
-  g_tree = &tree;
 
   factory.registerNodeType<CalculateNearestWallGoal>(
       "CalculateNearestWallGoal");
-  factory.registerSimpleCondition("CanSeeACloseWall",
-                                  std::bind(CanSeeACloseWall));
-  factory.registerSimpleCondition("IsNearAWall", std::bind(IsNearAWall));
-  factory.registerSimpleCondition("NotAboutToCollide",
-                                  std::bind(NotAboutToCollide));
+  BT_Talk_CanSeeACloseWall::RegisterNodes(factory);
+  BT_Talk_IsNearAWall::RegisterNodes(factory);
   factory.registerNodeType<MoveToPose>("MoveToPose");
-  factory.registerNodeType<NotYetTraveledMaximumDistance>(
-      "NotYetTraveledMaximumDistance");
   factory.registerNodeType<DummyNodes::SaySomething>("SaySomething");
-  factory.registerNodeType<TurnInRelativeDirection>("TurnInRelativeDirection");
-
+  
+  auto tree = factory.createTreeFromFile(xml_path);
+ 
   BT::PublisherZMQ publisher_zmq(tree);
   BT::StdCoutLogger logger_cout(tree);
   BT::printTreeRecursively(tree.rootNode());
 
   // ClosePointSubscriber::SharedPtr cps = ClosePointSubscriber::singleton();
   std::shared_ptr<ClosePointSubscriber> cps = ClosePointSubscriber::singleton();
+
+  RCLCPP_INFO(g_node->get_logger(),
+              "[main] Waiting for map->lidar_link transform to be available");
+  std::shared_ptr<tf2_ros::TransformListener> transform_listener{nullptr};
+  std::unique_ptr<tf2_ros::Buffer> tf_buffer =
+      std::make_unique<tf2_ros::Buffer>(g_node->get_clock());
+  transform_listener = std::make_shared<tf2_ros::TransformListener>(*tf_buffer);
+
+  auto timeout_ms_ = std::chrono::milliseconds(2);
+  while (!tf_buffer->canTransform("map", "lidar_link", tf2::TimePointZero) &&
+         rclcpp::ok()) {
+    std::this_thread::sleep_for(timeout_ms_);
+  }
+
+  RCLCPP_INFO(g_node->get_logger(),
+              "[main] transform is available, starting behavior tree");
 
   {
     BT::NodeStatus status = BT::NodeStatus::RUNNING;
