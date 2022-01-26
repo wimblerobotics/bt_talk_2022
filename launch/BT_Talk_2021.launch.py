@@ -20,7 +20,7 @@ def generate_launch_description():
                          parameters=[{
                              'xml_path': xml_path
                          }],
-                         prefix=['xterm -e gdb --args'],
+                        #  prefix=['xterm -e gdb --args'],
                          respawn=False,
                          output='screen')
     ld.add_action(behavior_node)
